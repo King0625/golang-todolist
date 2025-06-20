@@ -49,8 +49,8 @@ func Register(newUser User) error {
 	}
 
 	insertUserQuery := `INSERT INTO users (email, firstName, lastName, password, createdAt, updatedAt) VALUES(?,?,?,?,?,?)`
-	
-	result, err := db.Exec(insertUserQuery, 
+
+	result, err := db.Exec(insertUserQuery,
 		newUser.Email,
 		newUser.FirstName,
 		newUser.LastName,
@@ -58,16 +58,16 @@ func Register(newUser User) error {
 		newUser.CreatedAt,
 		newUser.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		return err
 	}
-	
+
 	newId, err := result.LastInsertId()
 	if err != nil {
 		return err
 	}
-	
+
 	fmt.Println(newId)
 	return nil
 }
@@ -88,7 +88,7 @@ func Login(email, password string) (*User, error) {
 	return user, nil
 }
 
-func getUserByEmail(email string) (*User, error){
+func getUserByEmail(email string) (*User, error) {
 	var user User
 
 	getUserByEmailQuery := `
@@ -100,7 +100,7 @@ SELECT * FROM users WHERE email = ?`
 		&user.FirstName,
 		&user.LastName,
 		&user.Password,
-		&user.CreatedAt, 
+		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
 

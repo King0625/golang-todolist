@@ -13,7 +13,7 @@ func main() {
 	CreateUserTable(db)
 
 	models.New(db)
-	
+
 	r := http.NewServeMux()
 
 	r.HandleFunc("POST /users/register", handlers.Register())
@@ -21,4 +21,3 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":11451", r))
 }
-

@@ -32,7 +32,7 @@ func WriteJSON(w http.ResponseWriter, status int, data any, headers ...http.Head
 			w.Header()[key] = val
 		}
 	}
-	
+
 	w.Header().Set("Content-type", "application-json")
 	w.WriteHeader(status)
 	err := json.NewEncoder(w).Encode(data)

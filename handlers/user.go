@@ -10,24 +10,24 @@ import (
 )
 
 type RegisterPayload struct {
-	Email string `json:"email"`
+	Email     string `json:"email"`
 	FirstName string `json:"firstName"`
-	LastName string `json:"lastName"`
-	Password string `json:"password"`
+	LastName  string `json:"lastName"`
+	Password  string `json:"password"`
 }
 
 type LoginPayload struct {
-	Email string `json:"email"`
-	Password string `json:"password"`	
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type JsonResponse struct {
 	Message string
-	Error string
-	Data any
+	Error   string
+	Data    any
 }
 
-func Register() func (w http.ResponseWriter, r *http.Request) {
+func Register() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 		var payload RegisterPayload
@@ -41,14 +41,16 @@ func Register() func (w http.ResponseWriter, r *http.Request) {
 		}
 		currentTime := time.Now()
 
-		var user models.User
-		user.Email = payload.Email
-		user.FirstName = payload.FirstName
-		user.LastName = payload.LastName
-		user.Password = payload.Password
-		user.CreatedAt = currentTime
-		user.UpdatedAt = currentTime
-		
+		// var uesr
+		user := models.User{
+			Email:     payload.Email,
+			FirstName: payload.FirstName,
+			LastName:  payload.LastName,
+			Password:  payload.Password,
+			CreatedAt: currentTime,
+			UpdatedAt: currentTime,
+		}
+
 		err = models.Register(user)
 		if err != nil {
 			res.Message = "register failed"
@@ -62,7 +64,7 @@ func Register() func (w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Login() func (w http.ResponseWriter, r *http.Request) {
+func Login() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 		var payload LoginPayload
@@ -80,11 +82,10 @@ func Login() func (w http.ResponseWriter, r *http.Request) {
 			res.Message = "login failed"
 			res.Error = err.Error()
 			utils.WriteJSON(w, 400, res)
-			return	
+			return
 		}
 
 		res.Message = "login successfully"
 		utils.WriteJSON(w, 200, res)
 	}
 }
-
