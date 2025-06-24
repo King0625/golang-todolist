@@ -22,9 +22,9 @@ type LoginPayload struct {
 }
 
 type JsonResponse struct {
-	Message string
-	Error   string
-	Data    any
+	Message string `json:"message"`
+	Error   string `json:"error"`
+	Data    any    `json:"data"`
 }
 
 func Register() func(w http.ResponseWriter, r *http.Request) {
