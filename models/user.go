@@ -88,6 +88,29 @@ func Login(email, password string) (*User, error) {
 	return user, nil
 }
 
+func GetUserDataById(userID int) (*User, error) {
+	var user User
+
+	getUserByIdQuery := `
+SELECT * FROM users WHERE id = ?`
+
+	err := db.QueryRow(getUserByIdQuery, userID).Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func getUserByEmail(email string) (*User, error) {
 	var user User
 

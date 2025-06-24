@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/King0625/golang-todolist/middlewares"
 	"github.com/King0625/golang-todolist/models"
 	"github.com/King0625/golang-todolist/utils"
 )
@@ -100,5 +101,32 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 		res.Message = "login successfully"
 		res.Data = LoginSuccessData{jwtToken}
 		utils.WriteJSON(w, 200, res)
+	}
+}
+
+func GetUserData() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var res JsonResponse
+
+		userID, ok := middlewares.GetUserID(r)
+		if !ok {
+			res.Message = "Unauthorized"
+			res.Error = "Unauthorized"
+			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			return
+		}
+
+		user, err := models.GetUserDataById(userID)
+		if user == nil {
+			res.Message = "user not found"
+			res.Error = err.Error()
+			utils.WriteJSON(w, http.StatusNotFound, res)
+			return
+		}
+
+		res.Message = "success"
+		res.Data = user
+
+		utils.WriteJSON(w, http.StatusOK, res)
 	}
 }
