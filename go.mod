@@ -4,6 +4,7 @@ go 1.23.2
 
 require (
 	github.com/go-sql-driver/mysql v1.9.3
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	golang.org/x/crypto v0.39.0
 )
 
