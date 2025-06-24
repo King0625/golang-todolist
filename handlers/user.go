@@ -27,6 +27,10 @@ type JsonResponse struct {
 	Data    any    `json:"data"`
 }
 
+type LoginSuccessData struct {
+	Token string `json:"token"`
+}
+
 func Register() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
@@ -77,7 +81,7 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = models.Login(payload.Email, payload.Password)
+		user, err := models.Login(payload.Email, payload.Password)
 		if err != nil {
 			res.Message = "login failed"
 			res.Error = err.Error()
@@ -85,7 +89,16 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		jwtToken, err := utils.NewToken(user.FirstName+user.LastName, user.ID)
+		if err != nil {
+			res.Message = "Gen token failed"
+			res.Error = err.Error()
+			utils.WriteJSON(w, 500, res)
+			return
+		}
+
 		res.Message = "login successfully"
+		res.Data = LoginSuccessData{jwtToken}
 		utils.WriteJSON(w, 200, res)
 	}
 }
