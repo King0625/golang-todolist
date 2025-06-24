@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/King0625/golang-todolist/handlers"
+	"github.com/King0625/golang-todolist/middlewares"
 	"github.com/King0625/golang-todolist/models"
 )
 
@@ -18,6 +19,7 @@ func main() {
 
 	r.HandleFunc("POST /users/register", handlers.Register())
 	r.HandleFunc("POST /users/login", handlers.Login())
+	r.HandleFunc("GET /users/me", middlewares.JWTAuth(handlers.GetUserData()))
 
 	log.Fatal(http.ListenAndServe(":11451", r))
 }

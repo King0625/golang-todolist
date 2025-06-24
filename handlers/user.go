@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/King0625/golang-todolist/middlewares"
 	"github.com/King0625/golang-todolist/models"
 	"github.com/King0625/golang-todolist/utils"
 )
@@ -22,9 +23,13 @@ type LoginPayload struct {
 }
 
 type JsonResponse struct {
-	Message string
-	Error   string
-	Data    any
+	Message string `json:"message"`
+	Error   string `json:"error"`
+	Data    any    `json:"data"`
+}
+
+type LoginSuccessData struct {
+	Token string `json:"token"`
 }
 
 func Register() func(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +82,7 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = models.Login(payload.Email, payload.Password)
+		user, err := models.Login(payload.Email, payload.Password)
 		if err != nil {
 			res.Message = "login failed"
 			res.Error = err.Error()
@@ -85,7 +90,43 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		jwtToken, err := utils.NewToken(user.FirstName+user.LastName, user.ID)
+		if err != nil {
+			res.Message = "Gen token failed"
+			res.Error = err.Error()
+			utils.WriteJSON(w, 500, res)
+			return
+		}
+
 		res.Message = "login successfully"
+		res.Data = LoginSuccessData{jwtToken}
 		utils.WriteJSON(w, 200, res)
+	}
+}
+
+func GetUserData() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var res JsonResponse
+
+		userID, ok := middlewares.GetUserID(r)
+		if !ok {
+			res.Message = "Unauthorized"
+			res.Error = "Unauthorized"
+			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			return
+		}
+
+		user, err := models.GetUserDataById(userID)
+		if user == nil {
+			res.Message = "user not found"
+			res.Error = err.Error()
+			utils.WriteJSON(w, http.StatusNotFound, res)
+			return
+		}
+
+		res.Message = "success"
+		res.Data = user
+
+		utils.WriteJSON(w, http.StatusOK, res)
 	}
 }
