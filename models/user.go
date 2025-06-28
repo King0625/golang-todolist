@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -17,12 +16,6 @@ type User struct {
 	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
-}
-
-var db *sql.DB
-
-func New(dbPool *sql.DB) {
-	db = dbPool
 }
 
 func hashPassword(password string) (string, error) {
