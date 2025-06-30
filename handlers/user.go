@@ -22,12 +22,6 @@ type LoginPayload struct {
 	Password string `json:"password"`
 }
 
-type JsonResponse struct {
-	Message string `json:"message"`
-	Error   string `json:"error"`
-	Data    any    `json:"data"`
-}
-
 type LoginSuccessData struct {
 	Token string `json:"token"`
 }

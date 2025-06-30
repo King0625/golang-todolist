@@ -12,6 +12,7 @@ import (
 func main() {
 	db := InitDB()
 	CreateUserTable(db)
+	CreateTodoTable(db)
 
 	models.New(db)
 
@@ -20,6 +21,13 @@ func main() {
 	r.HandleFunc("POST /users/register", handlers.Register())
 	r.HandleFunc("POST /users/login", handlers.Login())
 	r.HandleFunc("GET /users/me", middlewares.JWTAuth(handlers.GetUserData()))
+
+	r.HandleFunc("POST /todos", middlewares.JWTAuth(handlers.CreateTodo()))
+	r.HandleFunc("GET /todos", middlewares.JWTAuth(handlers.GetTodos()))
+	r.HandleFunc("GET /todos/{todoID}", middlewares.JWTAuth(handlers.GetOneTodoByID()))
+	r.HandleFunc("PUT /todos/{todoID}", middlewares.JWTAuth(handlers.UpdateTodoById()))
+	r.HandleFunc("PATCH /todos/{todoID}/done", middlewares.JWTAuth(handlers.MarkTodoDoneById()))
+	r.HandleFunc("DELETE /todos/{todoID}", middlewares.JWTAuth(handlers.DeleteTodoById()))
 
 	log.Fatal(http.ListenAndServe(":11451", r))
 }
