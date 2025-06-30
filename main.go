@@ -12,6 +12,7 @@ import (
 func main() {
 	db := InitDB()
 	CreateUserTable(db)
+	CreateTodoTable(db)
 
 	models.New(db)
 
