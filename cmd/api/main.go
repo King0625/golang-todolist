@@ -9,9 +9,14 @@ import (
 	"github.com/King0625/golang-todolist/internal/model"
 	"github.com/King0625/golang-todolist/internal/repository"
 	"github.com/King0625/golang-todolist/migration"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	db := repository.InitDB()
 	migration.CreateUserTable(db)
 	migration.CreateTodoTable(db)

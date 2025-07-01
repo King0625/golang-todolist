@@ -2,12 +2,13 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte("myjwtsecret")
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 func NewToken(username string, userID int) (accessToken string, err error) {
 	accessClaims := jwt.MapClaims{
