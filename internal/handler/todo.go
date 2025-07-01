@@ -1,13 +1,13 @@
-package handlers
+package handler
 
 import (
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/King0625/golang-todolist/middlewares"
-	"github.com/King0625/golang-todolist/models"
-	"github.com/King0625/golang-todolist/utils"
+	"github.com/King0625/golang-todolist/internal/middleware"
+	"github.com/King0625/golang-todolist/internal/model"
+	"github.com/King0625/golang-todolist/pkg/utils"
 )
 
 type CreateTodoPayload struct {
@@ -28,7 +28,7 @@ func CreateTodo() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 
-		userID, ok := middlewares.GetUserID(r)
+		userID, ok := middleware.GetUserID(r)
 		if !ok {
 			res.Message = "Unauthorized"
 			res.Error = "Unauthorized"
@@ -47,13 +47,13 @@ func CreateTodo() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		todo := models.Todo{
+		todo := model.Todo{
 			UserID:  userID,
 			Title:   payload.Title,
 			Content: payload.Content,
 		}
 
-		err = models.CreateTodo(todo)
+		err = model.CreateTodo(todo)
 
 		if err != nil {
 			res.Error = err.Error()
@@ -68,7 +68,7 @@ func CreateTodo() func(w http.ResponseWriter, r *http.Request) {
 func GetTodos() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
-		userID, ok := middlewares.GetUserID(r)
+		userID, ok := middleware.GetUserID(r)
 		if !ok {
 			res.Message = "Unauthorized"
 			res.Error = "Unauthorized"
@@ -76,7 +76,7 @@ func GetTodos() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		todos, err := models.GetUserTodosByUserID(userID)
+		todos, err := model.GetUserTodosByUserID(userID)
 		if err != nil {
 			res.Error = err.Error()
 			utils.WriteJSON(w, 500, res)
@@ -93,7 +93,7 @@ func GetOneTodoByID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 
-		userID, ok := middlewares.GetUserID(r)
+		userID, ok := middleware.GetUserID(r)
 		if !ok {
 			res.Message = "Unauthorized"
 			res.Error = "Unauthorized"
@@ -110,7 +110,7 @@ func GetOneTodoByID() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		todo, err := models.GetOneUserTodoByID(todoID)
+		todo, err := model.GetOneUserTodoByID(todoID)
 
 		if todo == nil {
 			res.Error = err.Error()
@@ -135,7 +135,7 @@ func GetOneTodoByID() func(w http.ResponseWriter, r *http.Request) {
 func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
-		userID, ok := middlewares.GetUserID(r)
+		userID, ok := middleware.GetUserID(r)
 		if !ok {
 			res.Message = "Unauthorized"
 			res.Error = "Unauthorized"
@@ -152,7 +152,7 @@ func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		todo, err := models.GetOneUserTodoByID(todoID)
+		todo, err := model.GetOneUserTodoByID(todoID)
 		if todo == nil {
 			res.Error = err.Error()
 			utils.WriteJSON(w, 404, res)
@@ -177,7 +177,7 @@ func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = models.UpdateUserTodoById(todoID, payload.Title, payload.Content, payload.Done)
+		err = model.UpdateUserTodoById(todoID, payload.Title, payload.Content, payload.Done)
 
 		if err != nil {
 			res.Error = err.Error()
@@ -193,7 +193,7 @@ func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 func MarkTodoDoneById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
-		userID, ok := middlewares.GetUserID(r)
+		userID, ok := middleware.GetUserID(r)
 		if !ok {
 			res.Message = "Unauthorized"
 			res.Error = "Unauthorized"
@@ -210,7 +210,7 @@ func MarkTodoDoneById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		todo, err := models.GetOneUserTodoByID(todoID)
+		todo, err := model.GetOneUserTodoByID(todoID)
 		if todo == nil {
 			res.Error = err.Error()
 			utils.WriteJSON(w, 404, res)
@@ -224,7 +224,7 @@ func MarkTodoDoneById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = models.MarkUserTodoAsDone(todoID)
+		err = model.MarkUserTodoAsDone(todoID)
 
 		if err != nil {
 			res.Error = err.Error()
@@ -240,7 +240,7 @@ func MarkTodoDoneById() func(w http.ResponseWriter, r *http.Request) {
 func DeleteTodoById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
-		userID, ok := middlewares.GetUserID(r)
+		userID, ok := middleware.GetUserID(r)
 		if !ok {
 			res.Message = "Unauthorized"
 			res.Error = "Unauthorized"
@@ -256,7 +256,7 @@ func DeleteTodoById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		todo, err := models.GetOneUserTodoByID(todoID)
+		todo, err := model.GetOneUserTodoByID(todoID)
 		if todo == nil {
 			res.Error = err.Error()
 			utils.WriteJSON(w, 404, res)
@@ -270,7 +270,7 @@ func DeleteTodoById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = models.DeleteUserTodoById(todoID)
+		err = model.DeleteUserTodoById(todoID)
 
 		if err != nil {
 			res.Error = err.Error()

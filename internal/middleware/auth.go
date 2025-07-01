@@ -1,11 +1,11 @@
-package middlewares
+package middleware
 
 import (
 	"context"
 	"net/http"
 	"strings"
 
-	"github.com/King0625/golang-todolist/utils"
+	"github.com/King0625/golang-todolist/pkg/utils"
 )
 
 type contextKey string
