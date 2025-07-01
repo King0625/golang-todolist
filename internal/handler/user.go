@@ -1,13 +1,13 @@
-package handlers
+package handler
 
 import (
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/King0625/golang-todolist/middlewares"
-	"github.com/King0625/golang-todolist/models"
-	"github.com/King0625/golang-todolist/utils"
+	"github.com/King0625/golang-todolist/internal/middleware"
+	"github.com/King0625/golang-todolist/internal/model"
+	"github.com/King0625/golang-todolist/pkg/utils"
 )
 
 type RegisterPayload struct {
@@ -41,7 +41,7 @@ func Register() func(w http.ResponseWriter, r *http.Request) {
 		currentTime := time.Now()
 
 		// var uesr
-		user := models.User{
+		user := model.User{
 			Email:     payload.Email,
 			FirstName: payload.FirstName,
 			LastName:  payload.LastName,
@@ -50,7 +50,7 @@ func Register() func(w http.ResponseWriter, r *http.Request) {
 			UpdatedAt: currentTime,
 		}
 
-		err = models.Register(user)
+		err = model.Register(user)
 		if err != nil {
 			res.Message = "register failed"
 			res.Error = err.Error()
@@ -76,7 +76,7 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := models.Login(payload.Email, payload.Password)
+		user, err := model.Login(payload.Email, payload.Password)
 		if err != nil {
 			res.Message = "login failed"
 			res.Error = err.Error()
@@ -102,7 +102,7 @@ func GetUserData() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 
-		userID, ok := middlewares.GetUserID(r)
+		userID, ok := middleware.GetUserID(r)
 		if !ok {
 			res.Message = "Unauthorized"
 			res.Error = "Unauthorized"
@@ -110,7 +110,7 @@ func GetUserData() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := models.GetUserDataById(userID)
+		user, err := model.GetUserDataById(userID)
 		if user == nil {
 			res.Message = "user not found"
 			res.Error = err.Error()
