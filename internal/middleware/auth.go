@@ -10,6 +10,7 @@ import (
 
 type contextKey string
 
+const Unauthorized = "UNAUTHORIZED"
 const userIDKey contextKey = "userID"
 
 type JsonResponse struct {
@@ -25,12 +26,11 @@ func GetUserID(r *http.Request) (int, bool) {
 
 func JWTAuth(next http.HandlerFunc) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
+		var message string
 		authHeader := r.Header.Get("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
-			res.Message = "Unauthorized"
-			res.Error = "Missing or invalid Authorization header"
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "Missing or invalid Authorization header"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 
@@ -38,9 +38,8 @@ func JWTAuth(next http.HandlerFunc) func(w http.ResponseWriter, r *http.Request)
 
 		userID, err := utils.ParseJWT(tokenStr)
 		if err != nil {
-			res.Message = "Invalid token"
-			res.Error = err.Error()
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "invalid token"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 

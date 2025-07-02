@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -28,14 +29,14 @@ type LoginSuccessData struct {
 
 func Register() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
+		var message string
+
 		var payload RegisterPayload
-		err := utils.ReadJSON(w, r, &payload)
+		err := utils.ReadJSONRequest(w, r, &payload)
 		if err != nil {
 			log.Fatal(err)
-			res.Success = false
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "cannot parse json body"
+			utils.RespondError(w, http.StatusInternalServerError, InvalidJSON, message, nil)
 			return
 		}
 		currentTime := time.Now()
@@ -52,75 +53,67 @@ func Register() func(w http.ResponseWriter, r *http.Request) {
 
 		err = model.Register(user)
 		if err != nil {
-			res.Success = false
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message := "cannot insert user data into db"
+			utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
 			return
 		}
 
-		res.Success = true
-		utils.WriteJSON(w, 201, res)
+		message = "register user successfully"
+		utils.RespondSuccess(w, http.StatusCreated, message, nil)
 	}
 }
 
 func Login() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
+		var message string
 		var payload LoginPayload
-		err := utils.ReadJSON(w, r, &payload)
+		err := utils.ReadJSONRequest(w, r, &payload)
 		if err != nil {
 			log.Fatal(err)
-			res.Success = false
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "cannot parse json body"
+			utils.RespondError(w, http.StatusInternalServerError, InvalidJSON, message, nil)
 			return
 		}
 
 		user, err := model.Login(payload.Email, payload.Password)
 		if err != nil {
-			res.Success = false
-			res.Error = err.Error()
-			utils.WriteJSON(w, 400, res)
+			message = "login failed"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 
 		jwtToken, err := utils.NewToken(user.FirstName+user.LastName, user.ID)
 		if err != nil {
-			res.Success = false
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "failed to issue jwt token from server"
+			utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
 			return
 		}
 
-		res.Success = true
-		res.Data = LoginSuccessData{jwtToken}
-		utils.WriteJSON(w, 200, res)
+		message = "login successfully"
+		data := LoginSuccessData{jwtToken}
+		utils.RespondSuccess(w, http.StatusOK, message, data)
 	}
 }
 
 func GetUserData() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
-
+		var message string
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Success = false
-			res.Error = "Unauthorized"
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "failed to fetch user identity from parsed jwt token"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 
 		user, err := model.GetUserDataById(userID)
 		if user == nil {
-			res.Success = false
-			res.Error = err.Error()
-			utils.WriteJSON(w, http.StatusNotFound, res)
+			fmt.Println(err)
+			message = "user not found"
+			utils.RespondError(w, http.StatusNotFound, UserNotFound, message, nil)
 			return
 		}
 
-		res.Success = true
-		res.Data = user
-
-		utils.WriteJSON(w, http.StatusOK, res)
+		message = "get user data successfully"
+		utils.RespondSuccess(w, http.StatusOK, message, user)
 	}
 }
