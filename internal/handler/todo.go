@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -26,24 +27,21 @@ type UpdateTodoStatusPayload struct {
 
 func CreateTodo() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
-
+		var message string
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
-			res.Error = "Unauthorized"
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "failed to fetch user identity from parsed jwt token"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 
 		var payload CreateTodoPayload
 
-		err := utils.ReadJSON(w, r, &payload)
+		err := utils.ReadJSONRequest(w, r, &payload)
 		if err != nil {
 			log.Fatal(err)
-			res.Message = "failed to parse json"
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "cannot parse json body"
+			utils.RespondError(w, http.StatusInternalServerError, InvalidJSON, message, nil)
 			return
 		}
 
@@ -56,48 +54,45 @@ func CreateTodo() func(w http.ResponseWriter, r *http.Request) {
 		err = model.CreateTodo(todo)
 
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "cannot insert todo into db"
+			utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
 			return
 		}
-		res.Message = "success"
-		utils.WriteJSON(w, 201, res)
+
+		message = "create todo successfully"
+		utils.RespondSuccess(w, http.StatusCreated, message, nil)
 	}
 }
 
 func GetTodos() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
+		var message string
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
-			res.Error = "Unauthorized"
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "failed to fetch user identity from parsed jwt token"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 
 		todos, err := model.GetUserTodosByUserID(userID)
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "cannot get todos from db"
+			utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
 			return
 		}
 
-		res.Message = "Success"
-		res.Data = todos
-		utils.WriteJSON(w, 200, res)
+		message = "fetch todos successfully"
+		utils.RespondSuccess(w, http.StatusOK, message, todos)
 	}
 }
 
 func GetOneTodoByID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
-
+		var message string
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
-			res.Error = "Unauthorized"
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "failed to fetch user identity from parsed jwt token"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 
@@ -105,41 +100,39 @@ func GetOneTodoByID() func(w http.ResponseWriter, r *http.Request) {
 		todoID, err := strconv.Atoi(todoIDString)
 
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 400, res)
+			message = "invalid todoID"
+			utils.RespondError(w, http.StatusBadRequest, ValidationError, message, nil)
 			return
 		}
 
 		todo, err := model.GetOneUserTodoByID(todoID)
 
 		if todo == nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 404, res)
+			fmt.Println(err)
+			message = "todo not found"
+			utils.RespondError(w, http.StatusNotFound, TodoNotFound, message, nil)
 			return
 		}
 
 		userIDInTodo := todo.UserID
 		if userID != userIDInTodo {
-			res.Error = "Cannot access other user's todo!"
-			utils.WriteJSON(w, 403, res)
+			message = "this is not your todo"
+			utils.RespondError(w, http.StatusForbidden, PermissionDenied, message, nil)
 			return
 		}
 
-		res.Message = "success"
-		res.Data = todo
-
-		utils.WriteJSON(w, http.StatusOK, res)
+		message = "fetch a todo successfully"
+		utils.RespondSuccess(w, http.StatusOK, message, todo)
 	}
 }
 
 func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
+		var message string
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
-			res.Error = "Unauthorized"
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "failed to fetch user identity from parsed jwt token"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 
@@ -147,57 +140,56 @@ func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 		todoID, err := strconv.Atoi(todoIDString)
 
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 400, res)
+			message = "invalid todoID"
+			utils.RespondError(w, http.StatusBadRequest, ValidationError, message, nil)
 			return
 		}
 
 		todo, err := model.GetOneUserTodoByID(todoID)
 		if todo == nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 404, res)
+			fmt.Println(err)
+			message = "todo not found"
+			utils.RespondError(w, http.StatusNotFound, TodoNotFound, message, nil)
 			return
 		}
 
 		userIDInTodo := todo.UserID
 		if userIDInTodo != userID {
-			res.Error = "Cannot access other user's todo"
-			utils.WriteJSON(w, 403, res)
+			message = "this is not your todo"
+			utils.RespondError(w, http.StatusForbidden, PermissionDenied, message, nil)
 			return
 		}
 
 		var payload UpdateTodoPayload
 
-		err = utils.ReadJSON(w, r, &payload)
+		err = utils.ReadJSONRequest(w, r, &payload)
 		if err != nil {
 			log.Fatal(err)
-			res.Message = "failed to parse json"
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "cannot parse json body"
+			utils.RespondError(w, http.StatusInternalServerError, InvalidJSON, message, nil)
 			return
 		}
 
 		err = model.UpdateUserTodoById(todoID, payload.Title, payload.Content, payload.Done)
 
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "failed to update the todo in DB"
+			utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
 			return
 		}
 
-		res.Message = "Success"
-		utils.WriteJSON(w, 200, res)
+		message = "update the todo successfully"
+		utils.RespondSuccess(w, http.StatusOK, message, nil)
 	}
 }
 
 func MarkTodoDoneById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
+		var message string
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
-			res.Error = "Unauthorized"
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "failed to fetch user identity from parsed jwt token"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
 
@@ -205,80 +197,81 @@ func MarkTodoDoneById() func(w http.ResponseWriter, r *http.Request) {
 		todoID, err := strconv.Atoi(todoIDString)
 
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 400, res)
+			message = "invalid todoID"
+			utils.RespondError(w, http.StatusBadRequest, ValidationError, message, nil)
 			return
 		}
 
 		todo, err := model.GetOneUserTodoByID(todoID)
 		if todo == nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 404, res)
+			fmt.Println(err)
+			message = "todo not found"
+			utils.RespondError(w, http.StatusNotFound, TodoNotFound, message, nil)
 			return
 		}
 
 		userIDInTodo := todo.UserID
 		if userIDInTodo != userID {
-			res.Error = "Cannot access other user's todo"
-			utils.WriteJSON(w, 403, res)
+			message = "this is not your todo"
+			utils.RespondError(w, http.StatusForbidden, PermissionDenied, message, nil)
 			return
 		}
 
 		err = model.MarkUserTodoAsDone(todoID)
 
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "failed to mark the todo done in DB"
+			utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
 			return
 		}
 
-		res.Message = "Success"
-		utils.WriteJSON(w, 200, res)
+		message = "mark the todo done successfully"
+		utils.RespondSuccess(w, http.StatusOK, message, nil)
 	}
 }
 
 func DeleteTodoById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var res JsonResponse
+		var message string
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
-			res.Error = "Unauthorized"
-			utils.WriteJSON(w, http.StatusUnauthorized, res)
+			message = "failed to fetch user identity from parsed jwt token"
+			utils.RespondError(w, http.StatusUnauthorized, Unauthorized, message, nil)
 			return
 		}
+
 		todoIDString := r.PathValue("todoID")
 		todoID, err := strconv.Atoi(todoIDString)
 
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 400, res)
+			message = "invalid todoID"
+			utils.RespondError(w, http.StatusBadRequest, ValidationError, message, nil)
 			return
 		}
 
 		todo, err := model.GetOneUserTodoByID(todoID)
 		if todo == nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 404, res)
+			fmt.Println(err)
+			message = "todo not found"
+			utils.RespondError(w, http.StatusNotFound, TodoNotFound, message, nil)
 			return
 		}
 
 		userIDInTodo := todo.UserID
 		if userIDInTodo != userID {
-			res.Error = "Cannot access other user's todo"
-			utils.WriteJSON(w, 403, res)
+			message = "this is not your todo"
+			utils.RespondError(w, http.StatusForbidden, PermissionDenied, message, nil)
 			return
 		}
 
 		err = model.DeleteUserTodoById(todoID)
-
 		if err != nil {
-			res.Error = err.Error()
-			utils.WriteJSON(w, 500, res)
+			message = "cannot delete the todo from DB"
+			utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
 			return
 		}
 
-		res.Message = "Success"
-		utils.WriteJSON(w, 204, res)
+		message = "delete the todo successfully"
+		utils.RespondSuccess(w, http.StatusOK, message, nil)
 	}
 }
