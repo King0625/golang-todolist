@@ -30,7 +30,7 @@ func CreateTodo() func(w http.ResponseWriter, r *http.Request) {
 
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
+			res.Success = false
 			res.Error = "Unauthorized"
 			utils.WriteJSON(w, http.StatusUnauthorized, res)
 			return
@@ -41,7 +41,7 @@ func CreateTodo() func(w http.ResponseWriter, r *http.Request) {
 		err := utils.ReadJSON(w, r, &payload)
 		if err != nil {
 			log.Fatal(err)
-			res.Message = "failed to parse json"
+			res.Success = false
 			res.Error = err.Error()
 			utils.WriteJSON(w, 500, res)
 			return
@@ -60,7 +60,7 @@ func CreateTodo() func(w http.ResponseWriter, r *http.Request) {
 			utils.WriteJSON(w, 500, res)
 			return
 		}
-		res.Message = "success"
+		res.Success = true
 		utils.WriteJSON(w, 201, res)
 	}
 }
@@ -70,7 +70,7 @@ func GetTodos() func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
+			res.Success = false
 			res.Error = "Unauthorized"
 			utils.WriteJSON(w, http.StatusUnauthorized, res)
 			return
@@ -83,7 +83,7 @@ func GetTodos() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res.Message = "Success"
+		res.Success = true
 		res.Data = todos
 		utils.WriteJSON(w, 200, res)
 	}
@@ -95,7 +95,7 @@ func GetOneTodoByID() func(w http.ResponseWriter, r *http.Request) {
 
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
+			res.Success = false
 			res.Error = "Unauthorized"
 			utils.WriteJSON(w, http.StatusUnauthorized, res)
 			return
@@ -125,7 +125,7 @@ func GetOneTodoByID() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res.Message = "success"
+		res.Success = true
 		res.Data = todo
 
 		utils.WriteJSON(w, http.StatusOK, res)
@@ -137,7 +137,7 @@ func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
+			res.Success = false
 			res.Error = "Unauthorized"
 			utils.WriteJSON(w, http.StatusUnauthorized, res)
 			return
@@ -171,7 +171,7 @@ func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 		err = utils.ReadJSON(w, r, &payload)
 		if err != nil {
 			log.Fatal(err)
-			res.Message = "failed to parse json"
+			res.Success = false
 			res.Error = err.Error()
 			utils.WriteJSON(w, 500, res)
 			return
@@ -185,7 +185,7 @@ func UpdateTodoById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res.Message = "Success"
+		res.Success = true
 		utils.WriteJSON(w, 200, res)
 	}
 }
@@ -195,7 +195,7 @@ func MarkTodoDoneById() func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
+			res.Success = false
 			res.Error = "Unauthorized"
 			utils.WriteJSON(w, http.StatusUnauthorized, res)
 			return
@@ -232,7 +232,7 @@ func MarkTodoDoneById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res.Message = "Success"
+		res.Success = true
 		utils.WriteJSON(w, 200, res)
 	}
 }
@@ -242,7 +242,7 @@ func DeleteTodoById() func(w http.ResponseWriter, r *http.Request) {
 		var res JsonResponse
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
+			res.Success = false
 			res.Error = "Unauthorized"
 			utils.WriteJSON(w, http.StatusUnauthorized, res)
 			return
@@ -278,7 +278,7 @@ func DeleteTodoById() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res.Message = "Success"
+		res.Success = true
 		utils.WriteJSON(w, 204, res)
 	}
 }

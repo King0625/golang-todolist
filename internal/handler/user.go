@@ -33,7 +33,7 @@ func Register() func(w http.ResponseWriter, r *http.Request) {
 		err := utils.ReadJSON(w, r, &payload)
 		if err != nil {
 			log.Fatal(err)
-			res.Message = "failed to parse json"
+			res.Success = false
 			res.Error = err.Error()
 			utils.WriteJSON(w, 500, res)
 			return
@@ -52,13 +52,13 @@ func Register() func(w http.ResponseWriter, r *http.Request) {
 
 		err = model.Register(user)
 		if err != nil {
-			res.Message = "register failed"
+			res.Success = false
 			res.Error = err.Error()
 			utils.WriteJSON(w, 500, res)
 			return
 		}
 
-		res.Message = "success"
+		res.Success = true
 		utils.WriteJSON(w, 201, res)
 	}
 }
@@ -70,7 +70,7 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 		err := utils.ReadJSON(w, r, &payload)
 		if err != nil {
 			log.Fatal(err)
-			res.Message = "failed to parse json"
+			res.Success = false
 			res.Error = err.Error()
 			utils.WriteJSON(w, 500, res)
 			return
@@ -78,7 +78,7 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 
 		user, err := model.Login(payload.Email, payload.Password)
 		if err != nil {
-			res.Message = "login failed"
+			res.Success = false
 			res.Error = err.Error()
 			utils.WriteJSON(w, 400, res)
 			return
@@ -86,13 +86,13 @@ func Login() func(w http.ResponseWriter, r *http.Request) {
 
 		jwtToken, err := utils.NewToken(user.FirstName+user.LastName, user.ID)
 		if err != nil {
-			res.Message = "Gen token failed"
+			res.Success = false
 			res.Error = err.Error()
 			utils.WriteJSON(w, 500, res)
 			return
 		}
 
-		res.Message = "login successfully"
+		res.Success = true
 		res.Data = LoginSuccessData{jwtToken}
 		utils.WriteJSON(w, 200, res)
 	}
@@ -104,7 +104,7 @@ func GetUserData() func(w http.ResponseWriter, r *http.Request) {
 
 		userID, ok := middleware.GetUserID(r)
 		if !ok {
-			res.Message = "Unauthorized"
+			res.Success = false
 			res.Error = "Unauthorized"
 			utils.WriteJSON(w, http.StatusUnauthorized, res)
 			return
@@ -112,13 +112,13 @@ func GetUserData() func(w http.ResponseWriter, r *http.Request) {
 
 		user, err := model.GetUserDataById(userID)
 		if user == nil {
-			res.Message = "user not found"
+			res.Success = false
 			res.Error = err.Error()
 			utils.WriteJSON(w, http.StatusNotFound, res)
 			return
 		}
 
-		res.Message = "success"
+		res.Success = true
 		res.Data = user
 
 		utils.WriteJSON(w, http.StatusOK, res)
