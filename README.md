@@ -1,4 +1,4 @@
-# Golang todo list
+# Golang todo list (TBD)
 
 This is the repository for my first golang API project.
 
@@ -8,5 +8,6 @@ This is the repository for my first golang API project.
 - Uses `golang-jwt` for authentication
 - Uses `joho/godotenv` for loading env file
 - Uses `golang.org/x/crypto` for password hashing
+- MORE TO COME...
 
 
