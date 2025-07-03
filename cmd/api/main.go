@@ -10,7 +10,6 @@ import (
 	"github.com/King0625/golang-todolist/internal/middleware"
 	"github.com/King0625/golang-todolist/internal/repository"
 	"github.com/King0625/golang-todolist/internal/service"
-	"github.com/King0625/golang-todolist/migration"
 	"github.com/joho/godotenv"
 )
 
@@ -26,8 +25,6 @@ func main() {
 		log.Fatal("Cannot init mysql instance")
 	}
 
-	migration.CreateUserTable(mysqlInstance)
-	migration.CreateTodoTable(mysqlInstance)
 	userRepo := repository.NewUserRepository(mysqlInstance)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
