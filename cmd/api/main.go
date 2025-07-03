@@ -1,13 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/King0625/golang-todolist/internal/db"
 	"github.com/King0625/golang-todolist/internal/handler"
 	"github.com/King0625/golang-todolist/internal/middleware"
 	"github.com/King0625/golang-todolist/internal/model"
-	"github.com/King0625/golang-todolist/internal/repository"
 	"github.com/King0625/golang-todolist/migration"
 	"github.com/joho/godotenv"
 )
@@ -17,11 +19,30 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	db := repository.InitDB()
-	migration.CreateUserTable(db)
-	migration.CreateTodoTable(db)
+	var (
+		dbUser = os.Getenv("MYSQL_USERNAME")
+		dbPass = os.Getenv("MYSQL_PASSWORD")
+		dbHost = os.Getenv("MYSQL_HOST")
+		dbPort = os.Getenv("MYSQL_PORT")
+		dbName = os.Getenv("MYSQL_DBNAME")
+	)
 
-	model.New(db)
+	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true",
+		dbUser,
+		dbPass,
+		dbHost,
+		dbPort,
+		dbName,
+	)
+	mysqlInstance, err := db.InitMySQL(dsn)
+	if err != nil {
+		log.Fatal("Cannot init mysql instance")
+	}
+
+	migration.CreateUserTable(mysqlInstance)
+	migration.CreateTodoTable(mysqlInstance)
+
+	model.New(mysqlInstance)
 
 	r := http.NewServeMux()
 
