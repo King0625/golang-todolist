@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,21 +19,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	var (
-		dbUser = os.Getenv("MYSQL_USERNAME")
-		dbPass = os.Getenv("MYSQL_PASSWORD")
-		dbHost = os.Getenv("MYSQL_HOST")
-		dbPort = os.Getenv("MYSQL_PORT")
-		dbName = os.Getenv("MYSQL_DBNAME")
-	)
 
-	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true",
-		dbUser,
-		dbPass,
-		dbHost,
-		dbPort,
-		dbName,
-	)
+	dsn := os.Getenv("MYSQL_DSN")
 	mysqlInstance, err := db.InitMySQL(dsn)
 	if err != nil {
 		log.Fatal("Cannot init mysql instance")
