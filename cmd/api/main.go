@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +10,6 @@ import (
 	"github.com/King0625/golang-todolist/internal/middleware"
 	"github.com/King0625/golang-todolist/internal/repository"
 	"github.com/King0625/golang-todolist/internal/service"
-	"github.com/King0625/golang-todolist/migration"
 	"github.com/joho/godotenv"
 )
 
@@ -20,28 +18,18 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	var (
-		dbUser = os.Getenv("MYSQL_USERNAME")
-		dbPass = os.Getenv("MYSQL_PASSWORD")
-		dbHost = os.Getenv("MYSQL_HOST")
-		dbPort = os.Getenv("MYSQL_PORT")
-		dbName = os.Getenv("MYSQL_DBNAME")
-	)
 
-	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true",
-		dbUser,
-		dbPass,
-		dbHost,
-		dbPort,
-		dbName,
-	)
+	dsn := os.Getenv("MYSQL_DSN")
+
+	if err := db.RunMigration(dsn); err != nil {
+		log.Fatalf("run migration error: %v", err)
+	}
+
 	mysqlInstance, err := db.InitMySQL(dsn)
 	if err != nil {
 		log.Fatal("Cannot init mysql instance")
 	}
 
-	migration.CreateUserTable(mysqlInstance)
-	migration.CreateTodoTable(mysqlInstance)
 	userRepo := repository.NewUserRepository(mysqlInstance)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
