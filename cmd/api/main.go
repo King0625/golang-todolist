@@ -20,6 +20,11 @@ func main() {
 	}
 
 	dsn := os.Getenv("MYSQL_DSN")
+
+	if err := db.RunMigration(dsn); err != nil {
+		log.Fatalf("run migration error: %v", err)
+	}
+
 	mysqlInstance, err := db.InitMySQL(dsn)
 	if err != nil {
 		log.Fatal("Cannot init mysql instance")
