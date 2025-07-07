@@ -10,24 +10,27 @@ import (
 	"github.com/King0625/golang-todolist/internal/model"
 	"github.com/King0625/golang-todolist/internal/service"
 	"github.com/King0625/golang-todolist/pkg/utils"
+	"github.com/go-playground/validator/v10"
 )
 
 type CreateTodoPayload struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title   string `json:"title" validate:"required,max=666"`
+	Content string `json:"content" validate:"required,max=6666"`
 }
 
 type UpdateTodoPayload struct {
 	CreateTodoPayload
-	Done bool `json:"done"`
+	Done bool `json:"done" validate:"required"`
 }
 
 type TodoHandler struct {
-	service service.TodoService
+	service  service.TodoService
+	validate *validator.Validate
 }
 
 func NewTodoHandler(s service.TodoService) *TodoHandler {
-	return &TodoHandler{s}
+	validate := validator.New()
+	return &TodoHandler{s, validate}
 }
 
 func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +48,18 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 		message = "cannot parse json body"
-		utils.RespondError(w, http.StatusInternalServerError, InvalidJSON, message, nil)
+		utils.RespondError(w, http.StatusBadRequest, InvalidJSON, message, nil)
+		return
+	}
+
+	if err = h.validate.Struct(payload); err != nil {
+		message = "validation failed"
+		details := make(map[string]string)
+		errs := err.(validator.ValidationErrors)
+		for _, e := range errs {
+			details[e.Field()] = e.ActualTag()
+		}
+		utils.RespondError(w, http.StatusBadRequest, ValidationError, message, details)
 		return
 	}
 
@@ -148,7 +162,18 @@ func (h *TodoHandler) UpdateTodoById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 		message = "cannot parse json body"
-		utils.RespondError(w, http.StatusInternalServerError, InvalidJSON, message, nil)
+		utils.RespondError(w, http.StatusBadRequest, InvalidJSON, message, nil)
+		return
+	}
+
+	if err = h.validate.Struct(payload); err != nil {
+		message = "validation failed"
+		details := make(map[string]string)
+		errs := err.(validator.ValidationErrors)
+		for _, e := range errs {
+			details[e.Field()] = e.ActualTag()
+		}
+		utils.RespondError(w, http.StatusBadRequest, ValidationError, message, details)
 		return
 	}
 
