@@ -12,6 +12,7 @@ This is the repository for my first golang API project.
 - Uses `joho/godotenv` for loading env file
 - Uses `golang.org/x/crypto` for password hashing
 - Uses `golang-migrate/migrate/v4` for DB migration
+- Uses `go-playground/validator/v10` for request payload validation
 - MORE TO COME...
 
 ## Run
