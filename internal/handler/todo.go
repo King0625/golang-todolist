@@ -22,10 +22,6 @@ type UpdateTodoPayload struct {
 	Done bool `json:"done"`
 }
 
-type UpdateTodoStatusPayload struct {
-	Done bool `json:"done"`
-}
-
 type TodoHandler struct {
 	service service.TodoService
 }
