@@ -39,6 +39,17 @@ func NewUserHandler(s service.UserService) *UserHandler {
 	return &UserHandler{s, validate}
 }
 
+// Register godoc
+// @Summary      Register a new user
+// @Description  Register a user with email,firstName,lastName,password
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        user  body  RegisterPayload  true  "user to create"
+// @Success      201   {object}  utils.SuccessResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Failure      400   {object}  utils.ErrorResponse
+// @Router       /users/register [post]
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var message string
 
@@ -85,6 +96,17 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	utils.RespondSuccess(w, http.StatusCreated, message, nil)
 }
 
+// Login godoc
+// @Summary      Login a user
+// @Description  login with email,password
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        user  body  LoginPayload  true  "user to login"
+// @Success      200   {object}  utils.SuccessResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Failure      400   {object}  utils.ErrorResponse
+// @Router       /users/login [post]
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var message string
 	var payload LoginPayload
@@ -126,6 +148,17 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	utils.RespondSuccess(w, http.StatusOK, message, data)
 }
 
+// GetUserData godoc
+// @Summary      get users data
+// @Description  get user data
+// @Tags         users
+// @Accept       json
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200   {object}  utils.SuccessResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Failure      400   {object}  utils.ErrorResponse
+// @Router       /users/me [get]
 func (h *UserHandler) GetUserData(w http.ResponseWriter, r *http.Request) {
 	var message string
 	userID, ok := middleware.GetUserID(r)

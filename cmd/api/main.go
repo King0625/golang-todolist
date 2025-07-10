@@ -1,3 +1,11 @@
+// @title           Todo List API
+// @version         1.0
+// @description     A todo list API built in Go.
+// @host            localhost:11451
+// @BasePath        /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
@@ -5,12 +13,14 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/King0625/golang-todolist/docs" // Import the generated docs
 	"github.com/King0625/golang-todolist/internal/db"
 	"github.com/King0625/golang-todolist/internal/handler"
 	"github.com/King0625/golang-todolist/internal/middleware"
 	"github.com/King0625/golang-todolist/internal/repository"
 	"github.com/King0625/golang-todolist/internal/service"
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
@@ -53,5 +63,6 @@ func main() {
 	r.HandleFunc("PATCH /todos/{todoID}/done", middleware.JWTAuth(todoHandler.MarkTodoDoneById))
 	r.HandleFunc("DELETE /todos/{todoID}", middleware.JWTAuth(todoHandler.DeleteTodoById))
 
+	r.Handle("/swagger/", httpSwagger.WrapHandler)
 	log.Fatal(http.ListenAndServe(":11451", r))
 }

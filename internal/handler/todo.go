@@ -33,6 +33,18 @@ func NewTodoHandler(s service.TodoService) *TodoHandler {
 	return &TodoHandler{s, validate}
 }
 
+// CreateTodo godoc
+// @Summary      Create a new todo
+// @Description  Create a todo item with title and content fields
+// @Tags         todos
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        todo  body  CreateTodoPayload  true  "Todo to create"
+// @Success      201   {object}  utils.SuccessResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Failure      400   {object}  utils.ErrorResponse
+// @Router       /todos [post]
 func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	var message string
 	userID, ok := middleware.GetUserID(r)
@@ -81,6 +93,15 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// GetTodos godoc
+// @Summary      Get all todos from authorized user
+// @Description  Get all todos from authorized user
+// @Tags         todos
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200   {object}  utils.SuccessResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Router       /todos [get]
 func (h *TodoHandler) GetTodos(w http.ResponseWriter, r *http.Request) {
 	var message string
 	userID, ok := middleware.GetUserID(r)
@@ -101,6 +122,18 @@ func (h *TodoHandler) GetTodos(w http.ResponseWriter, r *http.Request) {
 	utils.RespondSuccess(w, http.StatusOK, message, todos)
 }
 
+// GetOneTodoByID godoc
+// @Summary      get todo by id
+// @Description  get one todo via id param
+// @Tags         todos
+// @Security     BearerAuth
+// @Produce      json
+// @Param        todoID   path      int  true  "todo ID"
+// @Success      200   {object}  utils.SuccessResponse
+// @Failure      400   {object}  utils.ErrorResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Failure      403   {object}  utils.ErrorResponse
+// @Router       /todos/{todoID} [get]
 func (h *TodoHandler) GetOneTodoByID(w http.ResponseWriter, r *http.Request) {
 	var message string
 	userID, ok := middleware.GetUserID(r)
@@ -138,6 +171,19 @@ func (h *TodoHandler) GetOneTodoByID(w http.ResponseWriter, r *http.Request) {
 	utils.RespondSuccess(w, http.StatusOK, message, todo)
 }
 
+// UpdateTodoById godoc
+// @Summary      update todo by id
+// @Description  update one todo
+// @Tags         todos
+// @Security     BearerAuth
+// @Produce      json
+// @Param        todoID   path      int  true  "todo ID"
+// @Param        todo  body  UpdateTodoPayload  true  "Todo to update"
+// @Success      200   {object}  utils.SuccessResponse
+// @Failure      400   {object}  utils.ErrorResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Failure      403   {object}  utils.ErrorResponse
+// @Router       /todos/{todoID} [put]
 func (h *TodoHandler) UpdateTodoById(w http.ResponseWriter, r *http.Request) {
 	var message string
 	userID, ok := middleware.GetUserID(r)
@@ -204,6 +250,19 @@ func (h *TodoHandler) UpdateTodoById(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// MarkTodoDoneById godoc
+// @Summary      mark todo done by id
+// @Description  mark todo done by id
+// @Tags         todos
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        todoID   path      int  true  "todo ID"
+// @Success      200   {object}  utils.SuccessResponse
+// @Failure      400   {object}  utils.ErrorResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Failure      403   {object}  utils.ErrorResponse
+// @Router       /todos/{todoID}/done [patch]
 func (h *TodoHandler) MarkTodoDoneById(w http.ResponseWriter, r *http.Request) {
 	var message string
 	userID, ok := middleware.GetUserID(r)
@@ -249,6 +308,19 @@ func (h *TodoHandler) MarkTodoDoneById(w http.ResponseWriter, r *http.Request) {
 	utils.RespondSuccess(w, http.StatusOK, message, nil)
 }
 
+// DeleteTodoById godoc
+// @Summary      delete todo by id
+// @Description  delete todo by id
+// @Tags         todos
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        todoID   path      int  true  "todo ID"
+// @Success      200   {object}  utils.SuccessResponse
+// @Failure      400   {object}  utils.ErrorResponse
+// @Failure      401   {object}  utils.ErrorResponse
+// @Failure      403   {object}  utils.ErrorResponse
+// @Router       /todos/{todoID} [delete]
 func (h *TodoHandler) DeleteTodoById(w http.ResponseWriter, r *http.Request) {
 	var message string
 	userID, ok := middleware.GetUserID(r)

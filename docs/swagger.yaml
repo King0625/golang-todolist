@@ -1,0 +1,374 @@
+basePath: /
+definitions:
+  handler.CreateTodoPayload:
+    properties:
+      content:
+        maxLength: 6666
+        type: string
+      title:
+        maxLength: 666
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  handler.LoginPayload:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 12
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handler.RegisterPayload:
+    properties:
+      email:
+        type: string
+      firstName:
+        maxLength: 666
+        type: string
+      lastName:
+        maxLength: 666
+        type: string
+      password:
+        maxLength: 12
+        minLength: 6
+        type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    type: object
+  handler.UpdateTodoPayload:
+    properties:
+      content:
+        maxLength: 6666
+        type: string
+      done:
+        type: boolean
+      title:
+        maxLength: 666
+        type: string
+    required:
+    - content
+    - done
+    - title
+    type: object
+  utils.ErrorBody:
+    properties:
+      code:
+        type: string
+      details: {}
+      message:
+        type: string
+    type: object
+  utils.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/utils.ErrorBody'
+      success:
+        example: false
+        type: boolean
+    type: object
+  utils.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+host: localhost:11451
+info:
+  contact: {}
+  description: A todo list API built in Go.
+  title: Todo List API
+  version: "1.0"
+paths:
+  /todos:
+    get:
+      description: Get all todos from authorized user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all todos from authorized user
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: Create a todo item with title and content fields
+      parameters:
+      - description: Todo to create
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateTodoPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new todo
+      tags:
+      - todos
+  /todos/{todoID}:
+    delete:
+      consumes:
+      - application/json
+      description: delete todo by id
+      parameters:
+      - description: todo ID
+        in: path
+        name: todoID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: delete todo by id
+      tags:
+      - todos
+    get:
+      description: get one todo via id param
+      parameters:
+      - description: todo ID
+        in: path
+        name: todoID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: get todo by id
+      tags:
+      - todos
+    put:
+      description: update one todo
+      parameters:
+      - description: todo ID
+        in: path
+        name: todoID
+        required: true
+        type: integer
+      - description: Todo to update
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateTodoPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: update todo by id
+      tags:
+      - todos
+  /todos/{todoID}/done:
+    patch:
+      consumes:
+      - application/json
+      description: mark todo done by id
+      parameters:
+      - description: todo ID
+        in: path
+        name: todoID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: mark todo done by id
+      tags:
+      - todos
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: login with email,password
+      parameters:
+      - description: user to login
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Login a user
+      tags:
+      - users
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: get user data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: get users data
+      tags:
+      - users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a user with email,firstName,lastName,password
+      parameters:
+      - description: user to create
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
