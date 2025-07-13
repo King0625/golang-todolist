@@ -3,9 +3,11 @@ definitions:
   handler.CreateTodoPayload:
     properties:
       content:
+        example: sleep forever
         maxLength: 6666
         type: string
       title:
+        example: sleep
         maxLength: 666
         type: string
     required:
@@ -15,8 +17,10 @@ definitions:
   handler.LoginPayload:
     properties:
       email:
+        example: shxt@acceed.jp
         type: string
       password:
+        example: blackhole8
         maxLength: 12
         minLength: 6
         type: string
@@ -24,17 +28,27 @@ definitions:
     - email
     - password
     type: object
+  handler.LoginSuccessData:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTE5MDMzNTYsInVzZXJJRCI6MSwidXNlcm5hbWUiOiJLZW5DaGVuIn0.kBbaD4Z0Wacz-CBUacLq6fTpIdqq5Sfuoc4yF_BkfEE
+        type: string
+    type: object
   handler.RegisterPayload:
     properties:
       email:
+        example: tdn@coat.jp
         type: string
       firstName:
+        example: yaju
         maxLength: 666
         type: string
       lastName:
+        example: senpai
         maxLength: 666
         type: string
       password:
+        example: "114514"
         maxLength: 12
         minLength: 6
         type: string
@@ -47,17 +61,41 @@ definitions:
   handler.UpdateTodoPayload:
     properties:
       content:
+        example: sleep forever
         maxLength: 6666
         type: string
       done:
+        example: true
         type: boolean
       title:
+        example: sleep
         maxLength: 666
         type: string
     required:
     - content
     - done
     - title
+    type: object
+  model.User:
+    properties:
+      createdAt:
+        example: "2025-07-07 21:51:47"
+        type: string
+      email:
+        example: ken@ken.me
+        type: string
+      firstName:
+        example: Ken
+        type: string
+      id:
+        example: 1
+        type: integer
+      lastName:
+        example: Chen
+        type: string
+      updatedAt:
+        example: "2025-07-07 21:51:47"
+        type: string
     type: object
   utils.ErrorBody:
     properties:
@@ -299,7 +337,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utils.SuccessResponse'
+            allOf:
+            - $ref: '#/definitions/utils.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.LoginSuccessData'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -322,7 +365,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utils.SuccessResponse'
+            allOf:
+            - $ref: '#/definitions/utils.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
         "400":
           description: Bad Request
           schema:

@@ -5,11 +5,11 @@ import (
 )
 
 type Todo struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"userId"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"createdAt,omitempty"`
-	UpdatedAt time.Time `json:"updatedAt,omitempty"`
-	Done      bool      `json:"done,omitempty"`
+	ID        int       `json:"id" example:"1"`
+	UserID    int       `json:"userId" example:"1"`
+	Title     string    `json:"title" example:"114"`
+	Content   string    `json:"content" example:"514"`
+	CreatedAt time.Time `json:"createdAt,omitempty" example:"2025-07-07 21:51:47"`
+	UpdatedAt time.Time `json:"updatedAt,omitempty" example:"2025-07-07 21:51:47"`
+	Done      bool      `json:"done,omitempty" example:"false"`
 }

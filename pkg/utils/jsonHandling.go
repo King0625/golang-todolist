@@ -14,13 +14,13 @@ type ErrorBody struct {
 }
 
 type SuccessResponse struct {
-	Success bool   `json:"success"`
+	Success bool   `json:"success" example:"true"`
 	Message string `json:"message,omitempty"`
 	Data    any    `json:"data,omitempty"`
 }
 
 type ErrorResponse struct {
-	Success bool      `json:"success"`
+	Success bool      `json:"success" example:"false"`
 	Error   ErrorBody `json:"error"`
 }
 

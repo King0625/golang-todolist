@@ -14,19 +14,19 @@ import (
 )
 
 type RegisterPayload struct {
-	Email     string `json:"email" validate:"required,email"`
-	FirstName string `json:"firstName" validate:"required,max=666"`
-	LastName  string `json:"lastName" validate:"required,max=666"`
-	Password  string `json:"password" validate:"required,min=6,max=12"`
+	Email     string `json:"email" validate:"required,email" example:"tdn@coat.jp"`
+	FirstName string `json:"firstName" validate:"required,max=666" example:"yaju"`
+	LastName  string `json:"lastName" validate:"required,max=666" example:"senpai"`
+	Password  string `json:"password" validate:"required,min=6,max=12" example:"114514"`
 }
 
 type LoginPayload struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6,max=12"`
+	Email    string `json:"email" validate:"required,email" example:"shxt@acceed.jp"`
+	Password string `json:"password" validate:"required,min=6,max=12" example:"blackhole8"`
 }
 
 type LoginSuccessData struct {
-	Token string `json:"token"`
+	Token string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTE5MDMzNTYsInVzZXJJRCI6MSwidXNlcm5hbWUiOiJLZW5DaGVuIn0.kBbaD4Z0Wacz-CBUacLq6fTpIdqq5Sfuoc4yF_BkfEE"`
 }
 
 type UserHandler struct {
@@ -103,7 +103,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Produce      json
 // @Param        user  body  LoginPayload  true  "user to login"
-// @Success      200   {object}  utils.SuccessResponse
+// @Success      200   {object}  utils.SuccessResponse{data=LoginSuccessData}
 // @Failure      401   {object}  utils.ErrorResponse
 // @Failure      400   {object}  utils.ErrorResponse
 // @Router       /users/login [post]
@@ -155,7 +155,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Security     BearerAuth
 // @Produce      json
-// @Success      200   {object}  utils.SuccessResponse
+// @Success      200   {object}  utils.SuccessResponse{data=model.User}
 // @Failure      401   {object}  utils.ErrorResponse
 // @Failure      400   {object}  utils.ErrorResponse
 // @Router       /users/me [get]

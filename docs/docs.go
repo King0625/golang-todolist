@@ -342,7 +342,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.SuccessResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.LoginSuccessData"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -382,7 +394,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.SuccessResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.User"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -457,11 +481,13 @@ const docTemplate = `{
             "properties": {
                 "content": {
                     "type": "string",
-                    "maxLength": 6666
+                    "maxLength": 6666,
+                    "example": "sleep forever"
                 },
                 "title": {
                     "type": "string",
-                    "maxLength": 666
+                    "maxLength": 666,
+                    "example": "sleep"
                 }
             }
         },
@@ -473,12 +499,23 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "shxt@acceed.jp"
                 },
                 "password": {
                     "type": "string",
                     "maxLength": 12,
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "blackhole8"
+                }
+            }
+        },
+        "handler.LoginSuccessData": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTE5MDMzNTYsInVzZXJJRCI6MSwidXNlcm5hbWUiOiJLZW5DaGVuIn0.kBbaD4Z0Wacz-CBUacLq6fTpIdqq5Sfuoc4yF_BkfEE"
                 }
             }
         },
@@ -492,20 +529,24 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "tdn@coat.jp"
                 },
                 "firstName": {
                     "type": "string",
-                    "maxLength": 666
+                    "maxLength": 666,
+                    "example": "yaju"
                 },
                 "lastName": {
                     "type": "string",
-                    "maxLength": 666
+                    "maxLength": 666,
+                    "example": "senpai"
                 },
                 "password": {
                     "type": "string",
                     "maxLength": 12,
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "114514"
                 }
             }
         },
@@ -519,14 +560,46 @@ const docTemplate = `{
             "properties": {
                 "content": {
                     "type": "string",
-                    "maxLength": 6666
+                    "maxLength": 6666,
+                    "example": "sleep forever"
                 },
                 "done": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "title": {
                     "type": "string",
-                    "maxLength": 666
+                    "maxLength": 666,
+                    "example": "sleep"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string",
+                    "example": "2025-07-07 21:51:47"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "ken@ken.me"
+                },
+                "firstName": {
+                    "type": "string",
+                    "example": "Ken"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "lastName": {
+                    "type": "string",
+                    "example": "Chen"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2025-07-07 21:51:47"
                 }
             }
         },

@@ -14,13 +14,13 @@ import (
 )
 
 type CreateTodoPayload struct {
-	Title   string `json:"title" validate:"required,max=666"`
-	Content string `json:"content" validate:"required,max=6666"`
+	Title   string `json:"title" validate:"required,max=666" example:"sleep"`
+	Content string `json:"content" validate:"required,max=6666" example:"sleep forever"`
 }
 
 type UpdateTodoPayload struct {
 	CreateTodoPayload
-	Done bool `json:"done" validate:"required"`
+	Done bool `json:"done" validate:"required" example:"true"`
 }
 
 type TodoHandler struct {
