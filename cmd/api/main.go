@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/King0625/golang-todolist/internal/db"
+	"github.com/King0625/golang-todolist/internal/dto"
 	"github.com/King0625/golang-todolist/internal/handler"
 	"github.com/King0625/golang-todolist/internal/middleware"
 	"github.com/King0625/golang-todolist/internal/repository"
@@ -42,14 +43,18 @@ func main() {
 
 	r := http.NewServeMux()
 
-	r.HandleFunc("POST /users/register", userHandler.Register)
-	r.HandleFunc("POST /users/login", userHandler.Login)
+	r.HandleFunc("POST /users/register", middleware.ValidationMiddleware[dto.RegisterPayload](userHandler.Register))
+	r.HandleFunc("POST /users/login", middleware.ValidationMiddleware[dto.LoginPayload](userHandler.Login))
 	r.HandleFunc("GET /users/me", middleware.JWTAuth(userHandler.GetUserData))
 
-	r.HandleFunc("POST /todos", middleware.JWTAuth(todoHandler.CreateTodo))
+	r.HandleFunc("POST /todos", middleware.JWTAuth(
+		middleware.ValidationMiddleware[dto.CreateTodoPayload](todoHandler.CreateTodo),
+	))
 	r.HandleFunc("GET /todos", middleware.JWTAuth(todoHandler.GetTodos))
 	r.HandleFunc("GET /todos/{todoID}", middleware.JWTAuth(todoHandler.GetOneTodoByID))
-	r.HandleFunc("PUT /todos/{todoID}", middleware.JWTAuth(todoHandler.UpdateTodoById))
+	r.HandleFunc("PUT /todos/{todoID}", middleware.JWTAuth(
+		middleware.ValidationMiddleware[dto.UpdateTodoPayload](todoHandler.UpdateTodoById),
+	))
 	r.HandleFunc("PATCH /todos/{todoID}/done", middleware.JWTAuth(todoHandler.MarkTodoDoneById))
 	r.HandleFunc("DELETE /todos/{todoID}", middleware.JWTAuth(todoHandler.DeleteTodoById))
 

@@ -2,26 +2,16 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/King0625/golang-todolist/internal/dto"
 	"github.com/King0625/golang-todolist/internal/middleware"
 	"github.com/King0625/golang-todolist/internal/model"
 	"github.com/King0625/golang-todolist/internal/service"
 	"github.com/King0625/golang-todolist/pkg/utils"
 	"github.com/go-playground/validator/v10"
 )
-
-type CreateTodoPayload struct {
-	Title   string `json:"title" validate:"required,max=666"`
-	Content string `json:"content" validate:"required,max=6666"`
-}
-
-type UpdateTodoPayload struct {
-	CreateTodoPayload
-	Done bool `json:"done" validate:"required"`
-}
 
 type TodoHandler struct {
 	service  service.TodoService
@@ -42,26 +32,7 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payload CreateTodoPayload
-
-	err := utils.ReadJSONRequest(w, r, &payload)
-	if err != nil {
-		log.Fatal(err)
-		message = "cannot parse json body"
-		utils.RespondError(w, http.StatusBadRequest, InvalidJSON, message, nil)
-		return
-	}
-
-	if err = h.validate.Struct(payload); err != nil {
-		message = "validation failed"
-		details := make(map[string]string)
-		errs := err.(validator.ValidationErrors)
-		for _, e := range errs {
-			details[e.Field()] = e.ActualTag()
-		}
-		utils.RespondError(w, http.StatusBadRequest, ValidationError, message, details)
-		return
-	}
+	payload := middleware.GetValidatedRequest[dto.CreateTodoPayload](r)
 
 	todo := model.Todo{
 		UserID:  userID,
@@ -69,7 +40,7 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 		Content: payload.Content,
 	}
 
-	err = h.service.CreateTodo(r.Context(), &todo)
+	err := h.service.CreateTodo(r.Context(), &todo)
 	if err != nil {
 		message = "cannot insert todo into db"
 		utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
@@ -78,7 +49,6 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 	message = "create todo successfully"
 	utils.RespondSuccess(w, http.StatusCreated, message, nil)
-
 }
 
 func (h *TodoHandler) GetTodos(w http.ResponseWriter, r *http.Request) {
@@ -156,26 +126,7 @@ func (h *TodoHandler) UpdateTodoById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payload UpdateTodoPayload
-
-	err = utils.ReadJSONRequest(w, r, &payload)
-	if err != nil {
-		log.Fatal(err)
-		message = "cannot parse json body"
-		utils.RespondError(w, http.StatusBadRequest, InvalidJSON, message, nil)
-		return
-	}
-
-	if err = h.validate.Struct(payload); err != nil {
-		message = "validation failed"
-		details := make(map[string]string)
-		errs := err.(validator.ValidationErrors)
-		for _, e := range errs {
-			details[e.Field()] = e.ActualTag()
-		}
-		utils.RespondError(w, http.StatusBadRequest, ValidationError, message, details)
-		return
-	}
+	payload := middleware.GetValidatedRequest[dto.UpdateTodoPayload](r)
 
 	todo, err := h.service.GetTodoById(r.Context(), todoID)
 	if todo == nil {
@@ -201,7 +152,6 @@ func (h *TodoHandler) UpdateTodoById(w http.ResponseWriter, r *http.Request) {
 
 	message = "update the todo successfully"
 	utils.RespondSuccess(w, http.StatusOK, message, nil)
-
 }
 
 func (h *TodoHandler) MarkTodoDoneById(w http.ResponseWriter, r *http.Request) {
@@ -291,5 +241,4 @@ func (h *TodoHandler) DeleteTodoById(w http.ResponseWriter, r *http.Request) {
 
 	message = "delete the todo successfully"
 	utils.RespondSuccess(w, http.StatusOK, message, nil)
-
 }
