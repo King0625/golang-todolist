@@ -2,10 +2,10 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
+	"github.com/King0625/golang-todolist/internal/dto"
 	"github.com/King0625/golang-todolist/internal/middleware"
 	"github.com/King0625/golang-todolist/internal/model"
 	"github.com/King0625/golang-todolist/internal/service"
@@ -26,25 +26,7 @@ func NewUserHandler(s service.UserService) *UserHandler {
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var message string
 
-	var payload RegisterPayload
-	err := utils.ReadJSONRequest(w, r, &payload)
-	if err != nil {
-		log.Println(err)
-		message = "cannot parse json body"
-		utils.RespondError(w, http.StatusBadRequest, InvalidJSON, message, nil)
-		return
-	}
-
-	if err = h.validate.Struct(payload); err != nil {
-		message = "Validation failed"
-		errs := err.(validator.ValidationErrors)
-		details := make(map[string]string)
-		for _, e := range errs {
-			details[e.Field()] = e.ActualTag()
-		}
-		utils.RespondError(w, http.StatusBadRequest, ValidationError, message, details)
-		return
-	}
+	payload := middleware.GetValidatedRequest[dto.RegisterPayload](r)
 
 	currentTime := time.Now()
 
@@ -58,7 +40,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: currentTime,
 	}
 
-	err = h.service.Register(r.Context(), &user)
+	err := h.service.Register(r.Context(), &user)
 	if err != nil {
 		message := "cannot insert user data into db"
 		utils.RespondError(w, http.StatusInternalServerError, InternalError, message, nil)
@@ -71,25 +53,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var message string
-	var payload LoginPayload
-	err := utils.ReadJSONRequest(w, r, &payload)
-	if err != nil {
-		log.Fatal(err)
-		message = "cannot parse json body"
-		utils.RespondError(w, http.StatusBadRequest, InvalidJSON, message, nil)
-		return
-	}
-
-	if err = h.validate.Struct(payload); err != nil {
-		message = "validation failed"
-		errs := err.(validator.ValidationErrors)
-		details := make(map[string]string)
-		for _, e := range errs {
-			details[e.Field()] = e.ActualTag()
-		}
-		utils.RespondError(w, http.StatusBadRequest, ValidationError, message, details)
-		return
-	}
+	payload := middleware.GetValidatedRequest[dto.LoginPayload](r)
 
 	user, err := h.service.Login(r.Context(), payload.Email, payload.Password)
 	if err != nil {
@@ -106,7 +70,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	message = "login successfully"
-	data := LoginSuccessData{jwtToken}
+	data := dto.LoginSuccessData{Token: jwtToken}
 	utils.RespondSuccess(w, http.StatusOK, message, data)
 }
 
