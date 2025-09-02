@@ -24,8 +24,8 @@ func GetUserID(r *http.Request) (int, bool) {
 	return id, ok
 }
 
-func JWTAuth(next http.HandlerFunc) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func JWTAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var message string
 		authHeader := r.Header.Get("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
@@ -45,5 +45,5 @@ func JWTAuth(next http.HandlerFunc) func(w http.ResponseWriter, r *http.Request)
 
 		ctx := context.WithValue(r.Context(), userIDKey, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
-	}
+	})
 }
