@@ -21,8 +21,8 @@ func GetValidatedRequest[T any](r *http.Request) T {
 	return r.Context().Value(requestDataKey).(T)
 }
 
-func ValidationMiddleware[T any](next http.HandlerFunc) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func ValidationMiddleware[T any](next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req T
 		var message string
 
@@ -47,5 +47,5 @@ func ValidationMiddleware[T any](next http.HandlerFunc) func(w http.ResponseWrit
 
 		ctx := context.WithValue(r.Context(), requestDataKey, req)
 		next.ServeHTTP(w, r.WithContext(ctx))
-	}
+	})
 }

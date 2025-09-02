@@ -43,22 +43,22 @@ func main() {
 
 	r := http.NewServeMux()
 
-	r.HandleFunc("POST /users/register", middleware.ValidationMiddleware[dto.RegisterPayload](userHandler.Register))
-	r.HandleFunc("POST /users/login", middleware.ValidationMiddleware[dto.LoginPayload](userHandler.Login))
-	r.HandleFunc("GET /users/me", middleware.JWTAuth(userHandler.GetUserData))
+	r.Handle("POST /users/register", middleware.ValidationMiddleware[dto.RegisterPayload](http.HandlerFunc(userHandler.Register)))
+	r.Handle("POST /users/login", middleware.ValidationMiddleware[dto.LoginPayload](http.HandlerFunc(userHandler.Login)))
+	r.Handle("GET /users/me", middleware.JWTAuth(http.HandlerFunc(userHandler.GetUserData)))
 
-	r.HandleFunc("POST /todos", middleware.Chain(todoHandler.CreateTodo,
+	r.Handle("POST /todos", middleware.Chain(http.HandlerFunc(todoHandler.CreateTodo),
 		middleware.JWTAuth,
 		middleware.ValidationMiddleware[dto.CreateTodoPayload],
 	))
-	r.HandleFunc("GET /todos", middleware.JWTAuth(todoHandler.GetTodos))
-	r.HandleFunc("GET /todos/{todoID}", middleware.JWTAuth(todoHandler.GetOneTodoByID))
-	r.HandleFunc("PUT /todos/{todoID}", middleware.Chain(todoHandler.UpdateTodoById,
+	r.Handle("GET /todos", middleware.JWTAuth(http.HandlerFunc(todoHandler.GetTodos)))
+	r.Handle("GET /todos/{todoID}", middleware.JWTAuth(http.HandlerFunc(todoHandler.GetOneTodoByID)))
+	r.Handle("PUT /todos/{todoID}", middleware.Chain(http.HandlerFunc(todoHandler.UpdateTodoById),
 		middleware.JWTAuth,
 		middleware.ValidationMiddleware[dto.UpdateTodoPayload],
 	))
-	r.HandleFunc("PATCH /todos/{todoID}/done", middleware.JWTAuth(todoHandler.MarkTodoDoneById))
-	r.HandleFunc("DELETE /todos/{todoID}", middleware.JWTAuth(todoHandler.DeleteTodoById))
+	r.Handle("PATCH /todos/{todoID}/done", middleware.JWTAuth(http.HandlerFunc(todoHandler.MarkTodoDoneById)))
+	r.Handle("DELETE /todos/{todoID}", middleware.JWTAuth(http.HandlerFunc(todoHandler.DeleteTodoById)))
 
 	log.Fatal(http.ListenAndServe(":11451", r))
 }
